@@ -107,19 +107,22 @@ def save(name, df, queries, shrink=True):
             v = df[c].to_numpy()
             keep64 = c in ("ra", "dec", "ra0", "dec0", "nss_ra", "t_periastron", "period")
             df[c] = v if keep64 else v.astype(np.float32)
-    path, tmp = OUT / f"{name}.parquet", OUT / f"{name}.parquet.tmp"
+    import fcntl
+    import os
+    lock = open(OUT / ".manifest.lock", "w")
+    fcntl.flock(lock, fcntl.LOCK_EX)           # several builds may run at once: write file and manifest one at a time
+    path, tmp = OUT / f"{name}.parquet", OUT / f".{name}.{os.getpid()}.parquet.tmp"
     df.to_parquet(tmp, compression="zstd", index=False)
     tmp.replace(path)                          # atomic: an interrupted run never leaves a partial file
-    import fcntl
-    lock = open(OUT / ".manifest.lock", "w")
-    fcntl.flock(lock, fcntl.LOCK_EX)           # several builds may run at once: update the manifest one at a time
     man = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     man[name] = {"rows": len(df), "bytes": path.stat().st_size,
                  "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                  "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                  "columns": list(df.columns), "queries": [" ".join(q.split()) for q in queries]}
     MANIFEST.parent.mkdir(exist_ok=True)
-    MANIFEST.write_text(json.dumps(dict(sorted(man.items())), indent=1))
+    tmp = MANIFEST.with_suffix(f".{os.getpid()}.tmp")
+    tmp.write_text(json.dumps(dict(sorted(man.items())), indent=1))
+    tmp.replace(MANIFEST)                      # atomic, like the data file
     print(f"{name}: {len(df):,} rows, {path.stat().st_size / 1e6:.1f} MB")
 
 
@@ -153,7 +156,11 @@ def build_scan(name, workers=4):
     q = f"SELECT {cols} FROM gaia_dr3.gaia_source g WHERE g.source_id >= %s AND g.source_id < %s AND {where}"
     check_plan(q % (0, step))
     partial = OUT / f"{name}.partial.pkl"
-    done = pd.read_pickle(partial) if partial.exists() else {}
+    # the checkpoint records its query: resuming after a change of selection or columns must not mix the two
+    state = pd.read_pickle(partial) if partial.exists() else {"query": q, "chunks": {}}
+    if state["query"] != q:
+        raise RuntimeError(f"{partial} was made with a different query; delete it to start again")
+    done = state["chunks"]
     todo = [k for k in range(3072) if k not in done]
 
     def run(k):
@@ -164,7 +171,8 @@ def build_scan(name, workers=4):
         for i, (k, df) in enumerate(ex.map(run, todo)):
             done[k] = df
             if i % 100 == 99 or len(done) == 3072:
-                pd.to_pickle(done, partial)
+                pd.to_pickle(state, partial.with_suffix(".tmp"))
+                partial.with_suffix(".tmp").replace(partial)          # atomic checkpoint
                 print(f"  {len(done)}/3072 chunks", flush=True)
     df = pd.concat(done.values(), ignore_index=True).sort_values("source_id", ignore_index=True)
     save(name, df, [q.replace("%s", "{lo}", 1).replace("%s", "{hi}", 1) + "  -- for lo = k * 2**51, hi = lo + 2**51, k = 0..3071"])

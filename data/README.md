@@ -3,16 +3,18 @@
 Small extracts of public catalogues, prepared for the notebooks of
 https://github.com/vasilybelokurov/gaia-nss-tutorial and attached to its
 [`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2).
-Files are only added to the release, never replaced: a changed selection is published under a new name, so a checksum in
-`MANIFEST.json` never changes.
+Files in a release are never replaced: a changed file is published in a new release (`data-v0.2` changed
+`dr4_prerelease_epoch_astrometry` and added `dr4_prerelease_dr3`; `data-v0.1` is unchanged), so a checksum in a
+release's `MANIFEST.json` never changes.
 
 Every file is rebuilt by `scripts/build_data.py`. Gaia DR3 and APOGEE DR17 files come from WSDB (Cambridge); every
-query plan was checked with `EXPLAIN` before running (no sequential scan of `gaia_source`). `MANIFEST.json` lists, for
+query plan was checked with `EXPLAIN` before running (no sequential scan of `gaia_source`); for the chunked scan, the
+plan of the first chunk, as all chunks run the same query. `MANIFEST.json` lists, for
 each file, the exact SQL (or source URL), the row count, the size, the SHA-256 checksum and the creation time.
 
 Format: Apache Parquet (zstd). Read with `pandas.read_parquet(path)`. Angles in degrees, parallaxes and Thiele–Innes
 constants in mas, proper motions in mas/yr, periods in days, velocities in km/s. Floating-point columns are float32
-except positions, periods and periastron times. Missing values: NaN (floating point), −1 (integers).
+except positions, periods and periastron times (the DR4 pre-release file keeps every column at its native precision). Missing values: NaN (floating point), −1 (integers).
 
 ## Files
 
