@@ -16,7 +16,7 @@ it needs, and backs every claim with a figure and an explicit numerical check (`
 2. RUWE and excess noise in the 100-pc sample
 3. Astrometric orbits: validation, masses, and Gaia BH1
 4. Spectroscopic binaries and radial-velocity variability
-5. Gaia DR4 epoch astrometry: fitting the orbit of Gaia BH3
+5. Gaia DR4 epoch astrometry: refitting stars and orbits (Gaia BH3, HD 114762, Gaia-4b)
 
 Later chapters (accelerations and Hipparcos–Gaia proper-motion anomalies, eclipsing and ellipsoidal binaries, triples,
 compact companions and their follow-up, selection functions, and the DR4 catalogue) are planned in `STRUCTURE.md` in

@@ -47,6 +47,10 @@ ACC = """n.nss_solution_type, n.parallax AS nss_parallax, n.parallax_error AS ns
          n.pmdec AS nss_pmdec, n.accel_ra, n.accel_ra_error, n.accel_dec, n.accel_dec_error, n.deriv_accel_ra,
          n.deriv_accel_ra_error, n.deriv_accel_dec, n.deriv_accel_dec_error, n.astrometric_n_good_obs_al AS nss_n_good_obs_al,
          n.goodness_of_fit, n.significance, n.flags"""
+# The 12 pre-release source_ids, which (for this curated sample, not in general) are also DR3 source_ids
+DR4_IDS = (2237987199365376, 60730287810150016, 10973744521070720, 4181040337841125632, 3926186255616949504,
+           435469040545191680, 1663617687609809280, 2309425390592896, 20694084440761600, 3937211745905473024,
+           1457486023639239296, 4318465066420528000)
 QUERIES = {
     # every two-body solution, with the gaia_source columns of its star; in 64 source_id ranges (run in parallel)
     "nss_two_body": [f"SELECT {TBO}, {SRC} FROM gaia_dr3.nss_two_body_orbit n JOIN gaia_dr3.gaia_source g USING (source_id) "
@@ -71,16 +75,16 @@ QUERIES = {
                        g.radial_velocity, g.radial_velocity_error, g.rv_method_used, g.rv_nb_transits, g.rv_chisq_pvalue,
                        g.rv_renormalised_gof, g.rv_amplitude_robust, g.rv_time_duration, g.grvs_mag, g.rv_template_teff,
                        g.vbroad, g.non_single_star FROM gaia_dr3.gaia_source g WHERE g.source_id = a.source_id) g"""],
+    # the DR3 catalogue entries of the 12 DR4 pre-release sources, and their DR3 orbits if any (at most one each),
+    # for comparison with the DR4 epoch data (corr_vec dropped: sqlutilpy cannot read a NULL array)
+    "dr4_prerelease_dr3": [f"SELECT {SRC}, g.nu_eff_used_in_astrometry, g.pseudocolour, {TBO.replace(", n.corr_vec", "")} FROM gaia_dr3.gaia_source g "
+                           f"LEFT JOIN gaia_dr3.nss_two_body_orbit n USING (source_id) WHERE g.source_id IN {DR4_IDS}"],
     # PARSEC isochrones in Gaia bands (WSDB isochrones.gaia_1804): [Fe/H] = 0, ages 1, 3.16 and 10 Gyr, for primary masses
     "isochrones_gaia_solar": ["""SELECT age, feh, mini, label, gmag, g_bpmag, g_rpmag FROM isochrones.gaia_1804
                                  WHERE feh = 0 AND age IN (1e9, 3.16e9, 1e10) ORDER BY age, mini"""],
 }
 # The Gaia DR4 pre-release of epoch astrometry for 12 sources (June 2026), https://www.cosmos.esa.int/web/gaia/dr4-prerelease
 DR4_PRE = "https://anonftp.cosmos.esa.int/pub/GAIA_PUBLIC_DATA/Gaia_DR4/dr4-prerelease/gaia-dr4-prerelease-epoch-astrometry_2026-06-26.zip"
-# per transit: these columns are kept; the per-CCD arrays are exploded into one row per CCD observation
-DR4_TRANSIT = ["source_id", "transit_id", "ra0", "dec0", "agis_source_excess_noise", "obs_time_bary_corr", "zeta",
-               "parallax_factor_al", "g_mag", "multipeak", "blended"]
-DR4_CCD = ["obs_time_tcb", "scan_pos_angle", "centroid_pos_al", "centroid_pos_error_al", "used_by_agis_al", "ccd_proc_flags"]
 # Chunked scans of gaia_source by source_id ranges (2**51 wide: the 3072 nside-16 HEALPix pixels), for selections
 # that no index supports (e.g. on parallax). name: (selection, columns)
 SCANS = {
@@ -96,9 +100,9 @@ def check_plan(q):
         raise RuntimeError("plan contains a sequential scan of gaia_source:\n" + plan)
 
 
-def save(name, df, queries):
+def save(name, df, queries, shrink=True):
     OUT.mkdir(exist_ok=True)
-    for c in df.columns:                      # float32 for everything except positions and times; sentinels -> NaN
+    for c in df.columns if shrink else []:    # float32 for everything except positions and times; sentinels -> NaN
         if df[c].dtype.kind == "f":
             v = df[c].to_numpy()
             keep64 = c in ("ra", "dec", "ra0", "dec0", "nss_ra", "t_periastron", "period")
@@ -180,13 +184,18 @@ def build_dr4_prerelease(name):
         a = np.ma.asarray(a)
         return a.filled({"f": np.nan, "b": False}.get(a.dtype.kind, -1))
 
+    # every column is kept at its native precision; per-transit scalars are repeated on each CCD row, and the two
+    # across-scan centroid arrays, empty in this release, are dropped
+    arrays = [c for c in t.colnames if t[c].dtype == object and len(t[c][0]) > 0]
+    scalars = [c for c in t.colnames if t[c].dtype != object]
     rows = []
     for r in t:
         n = len(r["centroid_pos_al"])
-        rows.append(pd.DataFrame({**{c: [filled(r[c])[()]] * n for c in DR4_TRANSIT}, "ccd": np.arange(n),
-                                  **{c: filled(r[c]) for c in DR4_CCD}}))
+        assert all(len(r[c]) == n for c in arrays)
+        rows.append(pd.DataFrame({**{c: [filled(r[c])[()]] * n for c in scalars}, "ccd": np.arange(n),
+                                  **{c: filled(r[c]) for c in arrays}}))
     df = pd.concat(rows, ignore_index=True)
-    save(name, df, [DR4_PRE + f"  ({xml}; per-CCD arrays exploded into rows)"])
+    save(name, df, [DR4_PRE + f"  ({xml}; per-CCD arrays exploded into rows)"], shrink=False)
 
 
 ALL = list(QUERIES) + list(SCANS) + ["dr4_prerelease_epoch_astrometry"]

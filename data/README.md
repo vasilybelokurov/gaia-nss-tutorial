@@ -2,7 +2,7 @@
 
 Small extracts of public catalogues, prepared for the notebooks of
 https://github.com/vasilybelokurov/gaia-nss-tutorial and attached to its
-[`data-v0.1` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.1).
+[`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2).
 Files are only added to the release, never replaced: a changed selection is published under a new name, so a checksum in
 `MANIFEST.json` never changes.
 
@@ -24,7 +24,8 @@ except positions, periods and periastron times. Missing values: NaN (floating po
 | `gcns100` | `gaia_source` stars with parallax > 10 mas and parallax_over_error > 5 (all sky), with the columns below |
 | `apogee_gaia` | APOGEE DR17 `allStar` stars with ≥ 3 visits, S/N > 50, G < 13, duplicates removed (`EXTRATARG` bit 4): `vscatter`, `vhelio_avg`, T_eff, log g, [M/H], v sin i, flags, joined with the Gaia DR3 RV columns of the same source |
 | `isochrones_gaia_solar` | PARSEC isochrones (WSDB `isochrones.gaia_1804`) in Gaia G, BP, RP for [Fe/H] = 0 and ages 1, 3.16, 10 Gyr |
-| `dr4_prerelease_epoch_astrometry` | the Gaia DR4 epoch-astrometry pre-release (June 2026; 12 sources) with one row per CCD observation: times (`obs_time_tcb` [ns from JD 2455197.5, TCB], `obs_time_bary_corr` [ns]), `scan_pos_angle`, `centroid_pos_al` and its error [mas], `parallax_factor_al`, `used_by_agis_al`, flags |
+| `dr4_prerelease_epoch_astrometry` | the Gaia DR4 epoch-astrometry pre-release (June 2026, `Gaia DR4_RC3`; 12 sources) with one row per CCD observation (`ccd` 0 = sky mapper, 1–9 = AF1–AF9), all columns at native precision: per transit `obs_time_bary_corr` [ns, TCB(barycentric) − TCB(at Gaia), at AF4], `agis_source_excess_noise` [mas], `parallax_factor_al`, `nu_eff_used_in_astrometry`, flags; per CCD `obs_time_tcb` [ns from JD 2455197.5, TCB at Gaia], `scan_pos_angle` [deg], `centroid_pos_al` and its error [mas], `colour_factor_al`, `calculated_pos_ac` [mas], `used_by_agis_al`, `ccd_proc_flags`, … The empty across-scan centroid arrays are dropped |
+| `dr4_prerelease_dr3` | the Gaia DR3 `gaia_source` entries of the 12 pre-release sources (same `source_id` for this curated sample, not in general), with their DR3 `nss_two_body_orbit` solution where one exists (Gaia-4, HD 114762; `corr_vec` omitted) |
 
 `gaia_source` columns in `nss_*` and `gcns100`: `source_id`, `ra`, `dec`, `l`, `b`, `parallax`, `pmra`, `pmdec` and errors,
 `phot_g_mean_mag`, `bp_rp`, `phot_bp_rp_excess_factor`, `ruwe`, `astrometric_excess_noise(_sig)`, `astrometric_n_good_obs_al`,

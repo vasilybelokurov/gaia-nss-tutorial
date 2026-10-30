@@ -14,7 +14,7 @@ Status: in development. Chapters 0–5 (release v0.1) are built; the plan, inclu
 Open any notebook in Google Colab, e.g.
 [Chapter 1 — The photocentre wobble](https://colab.research.google.com/github/vasilybelokurov/gaia-nss-tutorial/blob/main/notebooks/01_photocentre_wobble.ipynb).
 Each notebook downloads the small data files it needs from this repository's
-[`data-v0.1` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.1)
+[`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2)
 and checks their SHA-256 checksums. Files are only ever added to the release; a changed selection gets a new file name.
 
 ## Run locally
