@@ -11,3 +11,4 @@ chapters:
   - file: notebooks/07_photometric_binaries
   - file: notebooks/08_combining_channels
   - file: notebooks/09_compact_companions
+  - file: notebooks/10_selection_functions

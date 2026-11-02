@@ -6,9 +6,9 @@ these companions are found and characterised in Gaia data, from the binarity ind
 excess noise, radial-velocity scatter) to the orbits of the Gaia DR3 non-single-star catalogue, and on to the epoch
 astrometry that Gaia DR4 (scheduled for 2 December 2026) will publish for every star.
 
-Each chapter is a self-contained Jupyter notebook that runs in Google Colab or locally, downloads its
-checksummed data automatically, and pairs figures with explicit numerical checks (`assert`). The v0.2
-core tutorial contains Chapters 00–09; the expanded data release is data-v0.3.
+Each chapter is a self-contained Jupyter notebook that runs in Google Colab or locally, downloads any
+external data automatically with checksum checks, and pairs figures with explicit numerical checks (`assert`). The v0.2.1
+tutorial contains Chapters 00–10; the expanded data release is data-v0.3.
 
 **Chapters**
 
@@ -23,9 +23,10 @@ core tutorial contains Chapters 00–09; the expanded data release is data-v0.3.
 7. Photometric binaries: eclipses, ellipsoidal modulation and sampling
 8. Combining channels and recognising hierarchical systems
 9. Compact companions: prediction and follow-up
+10. Selection functions: a controlled experiment
 
-This completes the core sequence through candidate validation. Chapter 10 is a separate draft on
-selection functions. Wide binaries and a full public DR4 catalogue analysis remain on the v0.3 roadmap in
+Chapter 10 uses simulated observations to teach completeness and population correction. A real-survey
+selection benchmark, wide binaries and a full public DR4 catalogue analysis remain on the v0.3 roadmap in
 `STRUCTURE.md`.
 
 **Prerequisites.** Basic Python (numpy, matplotlib) and elementary astronomy (magnitudes, parallax, Kepler's laws).

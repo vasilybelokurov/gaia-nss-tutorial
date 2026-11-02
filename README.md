@@ -6,11 +6,12 @@ Gaia DR4 with the pre-released DR4 epoch astrometry.
 
 **Read online:** https://vasilybelokurov.github.io/gaia-nss-tutorial/
 
-**v0.2:** the complete core sequence, Chapters 00–09, covers accelerations, photometric binaries,
+**v0.2.1:** Chapters 00–10 include a controlled selection-function experiment. The core sequence
+covers accelerations, photometric binaries,
 combining channels and compact-companion follow-up as well as the original Chapters 00–05.
-All chapters download their data automatically and can run independently in Colab or locally.
-The tutorial version is v0.2; its expanded dataset is **data-v0.3**. Earlier data releases remain unchanged.
-The separate v0.3 roadmap (selection functions, wide binaries and the full DR4 catalogue) is in
+All chapters run independently in Colab or locally. Those that use external data download them automatically.
+The tutorial version is v0.2.1; its expanded dataset is **data-v0.3**. Earlier data releases remain unchanged.
+The v0.3 roadmap (a real-survey selection benchmark, wide binaries and the full DR4 catalogue) is in
 [STRUCTURE.md](STRUCTURE.md).
 
 ## Run in the browser
