@@ -1,5 +1,6 @@
-numpy
-scipy
-matplotlib
-pandas
-pyarrow
+# Scientific stack used for the notebook checks (Python 3.13).
+numpy==2.5.3
+scipy==1.16.1
+matplotlib==3.10.3
+pandas==2.3.0
+pyarrow==21.0.0

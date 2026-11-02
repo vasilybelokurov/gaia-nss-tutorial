@@ -40,7 +40,7 @@ A first draft of this plan was reviewed independently by Codex (OpenAI; web rese
 4. **Public data as pre-extracted files.** Students have no WSDB access. `scripts/build_data.py` queries WSDB (sqlutilpy;
    every plan checked with `EXPLAIN`), and downloads the DR4 pre-release, writing parquet files plus a manifest (query,
    rows, SHA-256). Files are attached to the GitHub release `data-v0.2` (`data-v0.1` lacked the DR4 colour factors and the DR3 counterparts); notebooks download them and check the SHA-256.
-   Files are only added: a changed selection gets a new name.
+   Published assets stay unchanged: a changed selection gets a new name and a new release with the expanded manifest.
 5. **Plot + assertion.** Every claim comes with a numbered figure, a caption that says what is plotted, a discussion, and
    an `assert` with a stated tolerance. Asserts are of four kinds, named as such: reproducibility (a published number from
    the same data), mathematical identity or limit, statistical calibration (ensemble of simulations), and descriptive
@@ -79,8 +79,12 @@ not DR3 (Ch 5); HD 114762 benchmarked against Winn 2022 (Ch 5); the full Halbwac
 follow-up results of Simon 2026 / El-Badry 2026 (Ch 3); eccentric AEN prediction (Ch 2); APOGEE comparison restricted
 to stars where the Katz criterion applies (Ch 4); SB1C semantics, `rv_amplitude_robust` definition, f(M) arithmetic,
 σ(UWE) (Ch 1, 4); tautological and post-hoc asserts relabelled; reference metadata. Not changed: the bootstrap is not
-calibrated against injected orbits with correlated transit noise (stated in Ch 5 as a limitation); the data-build
-script was hardened (locked atomic writes, query-checked checkpoints) but its failure modes have no automated test.
+calibrated for BH3's incomplete long-period arc (stated in Ch 5 as a limitation). A later, separate
+injection–recovery check tests a 600-day synthetic orbit with independent and shared transit noise; see
+`validation/README.md`. It also exposed an eccentricity-boundary bug: refinement now returns the clipped
+eccentricity used by its objective, with regression tests at both boundaries. The data-build
+script uses locked atomic writes and query-checked checkpoints. Offline tests now cover unsafe query plans,
+stale checkpoints, interrupted Parquet writes, and refusal to overwrite an existing data name with changed content.
 
 ## Data (v0.1)
 

@@ -109,20 +109,30 @@ def save(name, df, queries, shrink=True):
             df[c] = v if keep64 else v.astype(np.float32)
     import fcntl
     import os
-    lock = open(OUT / ".manifest.lock", "w")
-    fcntl.flock(lock, fcntl.LOCK_EX)           # several builds may run at once: write file and manifest one at a time
     path, tmp = OUT / f"{name}.parquet", OUT / f".{name}.{os.getpid()}.parquet.tmp"
-    df.to_parquet(tmp, compression="zstd", index=False)
-    tmp.replace(path)                          # atomic: an interrupted run never leaves a partial file
-    man = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
-    man[name] = {"rows": len(df), "bytes": path.stat().st_size,
-                 "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-                 "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                 "columns": list(df.columns), "queries": [" ".join(q.split()) for q in queries]}
-    MANIFEST.parent.mkdir(exist_ok=True)
-    tmp = MANIFEST.with_suffix(f".{os.getpid()}.tmp")
-    tmp.write_text(json.dumps(dict(sorted(man.items())), indent=1))
-    tmp.replace(MANIFEST)                      # atomic, like the data file
+    manifest_tmp = MANIFEST.with_suffix(f".{os.getpid()}.tmp")
+    with open(OUT / ".manifest.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)       # serialize builds; closing the file releases the lock on errors too
+        try:
+            man = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+            df.to_parquet(tmp, compression="zstd", index=False)
+            entry = {"rows": len(df), "bytes": tmp.stat().st_size,
+                     "sha256": hashlib.sha256(tmp.read_bytes()).hexdigest(),
+                     "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                     "columns": list(df.columns), "queries": [" ".join(q.split()) for q in queries]}
+            if name in man:
+                if any(entry[k] != man[name][k] for k in ("sha256", "queries")):
+                    raise FileExistsError(f"{name} differs from its manifest entry; use a new name")
+                tmp.replace(path)           # restore an identical local copy without changing its provenance
+                return
+            man[name] = entry
+            MANIFEST.parent.mkdir(exist_ok=True)
+            manifest_tmp.write_text(json.dumps(dict(sorted(man.items())), indent=1))
+            tmp.replace(path)               # install complete data before publishing its manifest entry
+            manifest_tmp.replace(MANIFEST)
+        finally:
+            tmp.unlink(missing_ok=True)
+            manifest_tmp.unlink(missing_ok=True)
     print(f"{name}: {len(df):,} rows, {path.stat().st_size / 1e6:.1f} MB")
 
 

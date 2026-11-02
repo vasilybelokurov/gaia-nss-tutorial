@@ -1,0 +1,4 @@
+-r requirements.txt
+# Only needed to extract data; students use the published Parquet files.
+sqlutilpy==0.30.0
+astropy==8.0.1

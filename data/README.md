@@ -3,9 +3,18 @@
 Small extracts of public catalogues, prepared for the notebooks of
 https://github.com/vasilybelokurov/gaia-nss-tutorial and attached to its
 [`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2).
-Files in a release are never replaced: a changed file is published in a new release (`data-v0.2` changed
-`dr4_prerelease_epoch_astrometry` and added `dr4_prerelease_dr3`; `data-v0.1` is unchanged), so a checksum in a
-release's `MANIFEST.json` never changes.
+Published assets, including a release's `MANIFEST.json`, are never replaced. For future changes, give each changed
+selection or file a new name (for example, `gcns100_v2`), keep the old manifest entries, and publish the expanded
+manifest and required data files in a new release. Update notebook filenames and the release URL together.
+Historically, `data-v0.2` reused the name `dr4_prerelease_epoch_astrometry` for a changed file and added
+`dr4_prerelease_dr3`; `data-v0.1` remains unchanged. Keep those existing releases intact.
+
+The builder refuses to change the bytes or recorded query of a name already in the local manifest. An identical
+rebuild is allowed and keeps its original provenance. For a revised SQL selection, add a new key to `QUERIES`
+or `SCANS` in `scripts/build_data.py` before building it; do not delete the old manifest entry to bypass the check.
+Different Parquet writer versions or row ordering can also change the checksum: use the published asset when
+you need the original bytes. Data files and the manifest are replaced atomically one at a time; if a build stops
+between those replacements, a complete but unlisted local file may remain. Rerun the build before publishing.
 
 Every file is rebuilt by `scripts/build_data.py`. Gaia DR3 and APOGEE DR17 files come from WSDB (Cambridge); every
 query plan was checked with `EXPLAIN` before running (no sequential scan of `gaia_source`); for the chunked scan, the

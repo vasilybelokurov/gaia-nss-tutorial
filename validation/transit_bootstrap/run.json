@@ -1,0 +1,34 @@
+{
+  "trials": 20,
+  "bootstrap": 20,
+  "seed": 20261102,
+  "observations": 824,
+  "transits": 93,
+  "shared_sigma_mas": 0.08191431686282158,
+  "q_true": [
+    1.6427104722792607,
+    0.3,
+    0.2
+  ],
+  "p_true": [
+    0.0,
+    0.0,
+    10.0,
+    5.0,
+    -3.0,
+    0.0,
+    0.8,
+    0.12,
+    -0.4,
+    0.6
+  ],
+  "notebook_sha256": "56ce12fd1dfee350b5c3a656d5ea91c7cbbd055872fa11caecdb210461ce5aa8",
+  "script_sha256": "c374145dd84f7a023dd365b0e445540488a67daea358faa791efaef05092a2d4",
+  "data_sha256": "c2ad12a2153029484d26a201a815bc86cfcbe65a7a09761b8e71954ac429b8a3",
+  "versions": {
+    "numpy": "2.5.3",
+    "scipy": "1.16.1",
+    "pandas": "2.3.0",
+    "matplotlib": "3.10.3"
+  }
+}
