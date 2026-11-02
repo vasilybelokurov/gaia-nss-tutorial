@@ -6,7 +6,11 @@ Gaia DR4 with the pre-released DR4 epoch astrometry.
 
 **Read online:** https://vasilybelokurov.github.io/gaia-nss-tutorial/
 
-Status: in development. Chapters 0–5 (release v0.1) are built; the plan, including later chapters, is in
+**v0.2:** the complete core sequence, Chapters 00–09, covers accelerations, photometric binaries,
+combining channels and compact-companion follow-up as well as the original Chapters 00–05.
+All chapters download their data automatically and can run independently in Colab or locally.
+The tutorial version is v0.2; its expanded dataset is **data-v0.3**. Earlier data releases remain unchanged.
+The separate v0.3 roadmap (selection functions, wide binaries and the full DR4 catalogue) is in
 [STRUCTURE.md](STRUCTURE.md).
 
 ## Run in the browser
@@ -14,7 +18,7 @@ Status: in development. Chapters 0–5 (release v0.1) are built; the plan, inclu
 Open any notebook in Google Colab, e.g.
 [Chapter 1 — The photocentre wobble](https://colab.research.google.com/github/vasilybelokurov/gaia-nss-tutorial/blob/main/notebooks/01_photocentre_wobble.ipynb).
 Each notebook downloads the small data files it needs from this repository's
-[`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2)
+[`data-v0.3` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.3)
 and checks their SHA-256 checksums. Published assets stay unchanged; future data changes get new filenames
 and a new release, as described in [data/README.md](data/README.md).
 

@@ -39,7 +39,7 @@ A first draft of this plan was reviewed independently by Codex (OpenAI; web rese
 3. **Toy first, then data.** Each effect is first produced in a simulation with known input, then found in the catalogue.
 4. **Public data as pre-extracted files.** Students have no WSDB access. `scripts/build_data.py` queries WSDB (sqlutilpy;
    every plan checked with `EXPLAIN`), and downloads the DR4 pre-release, writing parquet files plus a manifest (query,
-   rows, SHA-256). Files are attached to the GitHub release `data-v0.2` (`data-v0.1` lacked the DR4 colour factors and the DR3 counterparts); notebooks download them and check the SHA-256.
+   rows, SHA-256). Files are attached to the GitHub release `data-v0.3` (earlier releases remain available unchanged); notebooks download them and check the SHA-256.
    Published assets stay unchanged: a changed selection gets a new name and a new release with the expanded manifest.
 5. **Plot + assertion.** Every claim comes with a numbered figure, a caption that says what is plotted, a discussion, and
    an `assert` with a stated tolerance. Asserts are of four kinds, named as such: reproducibility (a published number from
@@ -52,8 +52,29 @@ A first draft of this plan was reviewed independently by Codex (OpenAI; web rese
 | Release | Content | Status |
 |---|---|---|
 | **v0.1** | Ch 00–05: the DR3 NSS catalogue; the photocentre wobble (toy Gaia); RUWE and AEN in a 100-pc sample; astrometric orbits (validation, masses, AMRF, Gaia BH1); spectroscopic binaries and RV variability (with APOGEE); DR4 epoch astrometry (Gaia BH3) | built 2026-10-30 |
-| v0.2 | Accelerations and the Hipparcos–Gaia proper-motion anomaly; eclipsing and ellipsoidal binaries in epoch photometry; combining channels and hierarchical triples; compact-companion candidates and their follow-up | planned |
-| v0.3 | Selection functions (Lam et al. 2025; El-Badry et al. 2024b); wide binaries; Gaia DR4 NSS catalogue (after 2 Dec 2026) | planned |
+| v0.2 | Accelerations and the Hipparcos–Gaia proper-motion anomaly; eclipsing and ellipsoidal binaries in epoch photometry; combining channels and hierarchical triples; compact-companion candidates and their follow-up | core Chapters 06–09 implemented; data-v0.3 |
+| v0.3 | Selection functions (Lam et al. 2025; El-Badry et al. 2024b); wide binaries; Gaia DR4 NSS catalogue (after public release) | started locally: Chapter 10 draft |
+
+## Core release and future development
+
+The v0.2 book contains Chapters 00–09. New extracts are distributed with data-v0.3. Chapter 10 remains a
+local draft outside the published book and repository release; its real-survey benchmark is unfinished.
+The remaining chapter numbers reserve future topics.
+
+| Chapter | First deliverable | Data and release gate |
+|---|---|---|
+| **06 — Accelerations** | Taylor expansion, DR3 accelerations, simulated anomaly, real HGCA covariance calculation reproducing Table 3, and exact-ID comparison | Released `hgca_edr3` extract built from a pinned author copy |
+| **07 — Photometric binaries** | Uniform-disk and harmonic models; two observed eclipsing light curves plus an observed ellipsoidal candidate with a published amplitude check; NSS count; eclipse geometry and cadence | Released `eb_epoch_examples` extract: both brightest NSS eclipsing systems, 123 returned transits with flags retained; `ellipsoidal_epoch_example` for Gomel Table 3 |
+| **08 — Combining channels and triples** | Published joint-solution counts; one-to-one separate-solution joins; SB2 mass identities; hierarchical photocentre cancellation | Existing `nss_two_body`; no additional data required |
+| **09 — Compact-companion follow-up** | Published RV mass functions, original Gaia predictions, inclination dependence and BH1 fit history | Released `compact_followup` extract from auditable paper-table transcription; fitted parameters, not epoch RVs |
+| **10 — Selection functions** | Running draft: analytic versus injected detection probabilities, independent test-population recovery, and inclination mismatch | No external data yet; next reproduce a published DR3 selection-function benchmark with matched assumptions |
+| 11 — Wide binaries | Identify and validate a resolved-pair sample | Public pair catalogue and an explicit contamination/selection treatment |
+| 12 — DR4 catalogue | Compare released DR4 solutions with the earlier chapters | Wait for the public catalogue, validate its schema and selection rules, then create new versioned extracts |
+
+The core sequence now runs through `notebooks/09_compact_companions.ipynb`. Chapter 10 remains a separate draft.
+They contain numbered figures, analytic or published checks, and explicit limits. Chapter 06 now uses all 115,346 real HGCA rows, reproduces its ten-star printed benchmark to 0.051 in chi-square,
+and finds 3,235 exact-ID DR3 acceleration matches. Chapter 10 is not a calibrated Gaia selection function. References were checked against
+ADS and the linked arXiv records. Changed extracts get new filenames and a new data release.
 
 ## v0.1 chapters (built 2026-10-30)
 

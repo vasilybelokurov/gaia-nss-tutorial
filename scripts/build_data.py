@@ -85,6 +85,9 @@ QUERIES = {
 }
 # The Gaia DR4 pre-release of epoch astrometry for 12 sources (June 2026), https://www.cosmos.esa.int/web/gaia/dr4-prerelease
 DR4_PRE = "https://anonftp.cosmos.esa.int/pub/GAIA_PUBLIC_DATA/Gaia_DR4/dr4-prerelease/gaia-dr4-prerelease-epoch-astrometry_2026-06-26.zip"
+# Author's copy, pinned to a commit as well as a byte checksum (Brandt 2021, Table 4).
+HGCA_URL = "https://raw.githubusercontent.com/t-brandt/orvara/66349265c38b7a9bbdc96c5be2d6e885f9fd0860/HGCA_vEDR3.fits"
+HGCA_SHA256 = "23684d583baaa236775108b360c650e79770a695e16914b1201f290c1826065c"
 # Chunked scans of gaia_source by source_id ranges (2**51 wide: the 3072 nside-16 HEALPix pixels), for selections
 # that no index supports (e.g. on parallax). name: (selection, columns)
 SCANS = {
@@ -147,6 +150,16 @@ def build(name):
         return build_scan(name)
     if name == "dr4_prerelease_epoch_astrometry":
         return build_dr4_prerelease(name)
+    if name == "hgca_edr3":
+        return build_hgca(name)
+    if name in ("eb_epoch_examples", "ellipsoidal_epoch_example"):
+        return build_eb_epochs(name)
+    if name == "compact_followup":
+        path = ROOT / "data" / "compact_followup.json"
+        source = json.loads(path.read_text())
+        return save(name, pd.DataFrame(source["rows"]),
+                    [source["description"], "data/compact_followup.json SHA256=" + hashlib.sha256(path.read_bytes()).hexdigest()],
+                    shrink=False)
     from concurrent.futures import ThreadPoolExecutor
     queries = QUERIES[name]
     for q in queries:
@@ -216,7 +229,42 @@ def build_dr4_prerelease(name):
     save(name, df, [DR4_PRE + f"  ({xml}; per-CCD arrays exploded into rows)"], shrink=False)
 
 
-ALL = list(QUERIES) + list(SCANS) + ["dr4_prerelease_epoch_astrometry"]
+def build_hgca(name):
+    """Keep the complete public HGCA, including calibrated errors, correlations and individual epochs."""
+    import io
+    import urllib.request
+    from astropy.table import Table
+    raw = urllib.request.urlopen(HGCA_URL, timeout=60).read()
+    if hashlib.sha256(raw).hexdigest() != HGCA_SHA256:
+        raise ValueError("HGCA source checksum mismatch")
+    df = Table.read(io.BytesIO(raw), format="fits").to_pandas()
+    # Never convert the 64-bit Gaia identifiers to floating point.
+    assert len(df) == 115346 and df.gaia_source_id.is_unique and df.hip_id.is_unique
+    save(name, df, [HGCA_URL + " SHA256=" + HGCA_SHA256 + "; all rows and columns; Brandt 2021 Table 4"], shrink=False)
+
+
+def build_eb_epochs(name):
+    """Public photometric examples; retain flags for an explicit student quality cut."""
+    import io
+    import urllib.request
+    frames, provenance = [], []
+    # Two brightest NSS eclipsing entries, or the bright ellipsoidal candidate in Gomel 2023 Table 3.
+    ids = ((4042390512917208960,) if name == "ellipsoidal_epoch_example"
+           else (5895765142704352640, 541801332594262912))
+    for sid in ids:
+        url = ("https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY"
+               f"&ID={sid}&RELEASE=Gaia+DR3&BAND=G&VALID_DATA=TRUE&FORMAT=CSV")
+        raw = urllib.request.urlopen(url, timeout=60).read()
+        df = pd.read_csv(io.BytesIO(raw))
+        assert df.source_id.dtype.kind in "iu" and (df.source_id == sid).all()
+        assert df.transit_id.is_unique
+        frames.append(df)
+        provenance.append(url + " SHA256=" + hashlib.sha256(raw).hexdigest() + "; all returned rows, columns and flags")
+    save(name, pd.concat(frames, ignore_index=True), provenance, shrink=False)
+
+
+ALL = list(QUERIES) + list(SCANS) + ["dr4_prerelease_epoch_astrometry", "hgca_edr3", "eb_epoch_examples",
+                                  "ellipsoidal_epoch_example", "compact_followup"]
 
 if __name__ == "__main__":
     names = sys.argv[1:] or ["all"]

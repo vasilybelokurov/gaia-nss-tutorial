@@ -38,6 +38,39 @@
    "WITH a AS MATERIALIZED (SELECT apogee_id, gaiaedr3_source_id AS source_id, nvisits, snr, vscatter, vhelio_avg, teff, logg, m_h, vsini, aspcapflag, starflag FROM apogee_dr17.allstar WHERE nvisits >= 3 AND snr > 50 AND gaiaedr3_source_id > 0 AND vscatter IS NOT NULL AND gaiaedr3_phot_g_mean_mag < 13 AND (extratarg & 16) = 0) SELECT a.*, g.* FROM a CROSS JOIN LATERAL (SELECT g.phot_g_mean_mag, g.bp_rp, g.parallax, g.ruwe, g.radial_velocity, g.radial_velocity_error, g.rv_method_used, g.rv_nb_transits, g.rv_chisq_pvalue, g.rv_renormalised_gof, g.rv_amplitude_robust, g.rv_time_duration, g.grvs_mag, g.rv_template_teff, g.vbroad, g.non_single_star FROM gaia_dr3.gaia_source g WHERE g.source_id = a.source_id) g"
   ]
  },
+ "compact_followup": {
+  "rows": 3,
+  "bytes": 13344,
+  "sha256": "e79d0139668b19a3bda8e9e5327f0fa973ee5f5760082e50a7151738a594118f",
+  "created_utc": "2026-11-02T08:50:40+00:00",
+  "columns": [
+   "source_id",
+   "name",
+   "period_days",
+   "period_err_lo",
+   "period_err_hi",
+   "period_fixed",
+   "k_kms",
+   "k_err_lo",
+   "k_err_hi",
+   "eccentricity",
+   "e_err_lo",
+   "e_err_hi",
+   "f_msun",
+   "f_err_lo",
+   "f_err_hi",
+   "omega_rad",
+   "tperi_jd",
+   "gamma_kms",
+   "reference",
+   "table",
+   "outcome"
+  ],
+  "queries": [
+   "Published RV orbital-fit summaries, manually transcribed with original units; not epoch RV measurements. BH1: El-Badry et al. 2023 Table 1 RV-only solution with P fixed to 185.6 d; HD124273 and source6281: Simon et al. 2026 Table 4. Errors are quoted marginal intervals, not a covariance matrix. JSON is the auditable source for the Parquet build.",
+   "data/compact_followup.json SHA256=eb5afcf7497bb486f480b380419669f78b0f078afd5f3766e016195f4be564e3"
+  ]
+ },
  "dr4_prerelease_dr3": {
   "rows": 12,
   "bytes": 52903,
@@ -182,6 +215,79 @@
    "https://anonftp.cosmos.esa.int/pub/GAIA_PUBLIC_DATA/Gaia_DR4/dr4-prerelease/gaia-dr4-prerelease-epoch-astrometry_2026-06-26.zip (GAIA_DR4_PRERELEASE_EPOCH_ASTROMETRY_RAW.xml; per-CCD arrays exploded into rows)"
   ]
  },
+ "eb_epoch_examples": {
+  "rows": 123,
+  "bytes": 33046,
+  "sha256": "42078bc44a9e011dc0a77bc5ef0ff2c6a700fa090eb6239ce0012d093dde4aca",
+  "created_utc": "2026-11-02T08:50:40+00:00",
+  "columns": [
+   "solution_id",
+   "source_id",
+   "transit_id",
+   "g_transit_time",
+   "g_transit_flux",
+   "g_transit_flux_error",
+   "g_transit_flux_over_error",
+   "g_transit_mag",
+   "bp_obs_time",
+   "bp_flux",
+   "bp_flux_error",
+   "bp_flux_over_error",
+   "bp_mag",
+   "rp_obs_time",
+   "rp_flux",
+   "rp_flux_error",
+   "rp_flux_over_error",
+   "rp_mag",
+   "variability_flag_g_reject",
+   "variability_flag_bp_reject",
+   "variability_flag_rp_reject",
+   "g_other_flags",
+   "bp_other_flags",
+   "rp_other_flags",
+   "rejected_by_photometry"
+  ],
+  "queries": [
+   "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY&ID=5895765142704352640&RELEASE=Gaia+DR3&BAND=G&VALID_DATA=TRUE&FORMAT=CSV SHA256=f1ff828f751b2952815eb1d3853957abef2387d99ae5f7b120c1db3951a4591b; all returned rows, columns and flags",
+   "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY&ID=541801332594262912&RELEASE=Gaia+DR3&BAND=G&VALID_DATA=TRUE&FORMAT=CSV SHA256=c96df72e98f52fe2385e67e6e984a757abe99c6a02f83fc08f064c54c6015b79; all returned rows, columns and flags"
+  ]
+ },
+ "ellipsoidal_epoch_example": {
+  "rows": 38,
+  "bytes": 21105,
+  "sha256": "cb829984accb753873d2fe9a2ffa6578039323fbf36c706be015e7a7b40fac52",
+  "created_utc": "2026-11-02T08:59:39+00:00",
+  "columns": [
+   "solution_id",
+   "source_id",
+   "transit_id",
+   "g_transit_time",
+   "g_transit_flux",
+   "g_transit_flux_error",
+   "g_transit_flux_over_error",
+   "g_transit_mag",
+   "bp_obs_time",
+   "bp_flux",
+   "bp_flux_error",
+   "bp_flux_over_error",
+   "bp_mag",
+   "rp_obs_time",
+   "rp_flux",
+   "rp_flux_error",
+   "rp_flux_over_error",
+   "rp_mag",
+   "variability_flag_g_reject",
+   "variability_flag_bp_reject",
+   "variability_flag_rp_reject",
+   "g_other_flags",
+   "bp_other_flags",
+   "rp_other_flags",
+   "rejected_by_photometry"
+  ],
+  "queries": [
+   "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY&ID=4042390512917208960&RELEASE=Gaia+DR3&BAND=G&VALID_DATA=TRUE&FORMAT=CSV SHA256=fea653f174d16de7c7ba5c7bf043e56ca1cfe55f859f074dc959211f8059d9d1; all returned rows, columns and flags"
+  ]
+ },
  "gcns100": {
   "rows": 541958,
   "bytes": 56956455,
@@ -227,6 +333,52 @@
   ],
   "queries": [
    "SELECT g.source_id, g.ra, g.dec, g.l, g.b, g.parallax, g.parallax_error, g.pmra, g.pmra_error, g.pmdec, g.pmdec_error, g.phot_g_mean_mag, g.bp_rp, g.phot_bp_rp_excess_factor, g.ruwe, g.astrometric_excess_noise, g.astrometric_excess_noise_sig, g.astrometric_n_good_obs_al, g.astrometric_params_solved, g.visibility_periods_used, g.ipd_gof_harmonic_amplitude, g.ipd_frac_multi_peak, g.ipd_frac_odd_win, g.duplicated_source, g.non_single_star, g.phot_variable_flag, g.radial_velocity, g.radial_velocity_error, g.rv_method_used, g.rv_nb_transits, g.rv_chisq_pvalue, g.rv_renormalised_gof, g.rv_amplitude_robust, g.grvs_mag, g.rv_template_teff, g.vbroad FROM gaia_dr3.gaia_source g WHERE g.source_id >= {lo} AND g.source_id < {hi} AND g.parallax > 10 AND g.parallax_over_error > 5 -- for lo = k * 2**51, hi = lo + 2**51, k = 0..3071"
+  ]
+ },
+ "hgca_edr3": {
+  "rows": 115346,
+  "bytes": 23291213,
+  "sha256": "c0feab2c25896342d7f5d53e7f51c1e6ebc043c81124264cb74dd2085a8d598e",
+  "created_utc": "2026-11-02T08:15:03+00:00",
+  "columns": [
+   "hip_id",
+   "gaia_source_id",
+   "gaia_ra",
+   "gaia_dec",
+   "radial_velocity",
+   "radial_velocity_error",
+   "radial_velocity_source",
+   "parallax_gaia",
+   "parallax_gaia_error",
+   "pmra_gaia",
+   "pmdec_gaia",
+   "pmra_gaia_error",
+   "pmdec_gaia_error",
+   "pmra_pmdec_gaia",
+   "pmra_hg",
+   "pmdec_hg",
+   "pmra_hg_error",
+   "pmdec_hg_error",
+   "pmra_pmdec_hg",
+   "pmra_hip",
+   "pmdec_hip",
+   "pmra_hip_error",
+   "pmdec_hip_error",
+   "pmra_pmdec_hip",
+   "epoch_ra_gaia",
+   "epoch_dec_gaia",
+   "epoch_ra_hip",
+   "epoch_dec_hip",
+   "crosscal_pmra_hip",
+   "crosscal_pmdec_hip",
+   "crosscal_pmra_hg",
+   "crosscal_pmdec_hg",
+   "nonlinear_dpmra",
+   "nonlinear_dpmdec",
+   "chisq"
+  ],
+  "queries": [
+   "https://raw.githubusercontent.com/t-brandt/orvara/66349265c38b7a9bbdc96c5be2d6e885f9fd0860/HGCA_vEDR3.fits SHA256=23684d583baaa236775108b360c650e79770a695e16914b1201f290c1826065c; all rows and columns; Brandt 2021 Table 4"
   ]
  },
  "isochrones_gaia_solar": {

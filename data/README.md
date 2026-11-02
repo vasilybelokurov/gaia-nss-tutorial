@@ -2,7 +2,7 @@
 
 Small extracts of public catalogues, prepared for the notebooks of
 https://github.com/vasilybelokurov/gaia-nss-tutorial and attached to its
-[`data-v0.2` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.2).
+[`data-v0.3` release](https://github.com/vasilybelokurov/gaia-nss-tutorial/releases/tag/data-v0.3).
 Published assets, including a release's `MANIFEST.json`, are never replaced. For future changes, give each changed
 selection or file a new name (for example, `gcns100_v2`), keep the old manifest entries, and publish the expanded
 manifest and required data files in a new release. Update notebook filenames and the release URL together.
@@ -24,6 +24,41 @@ each file, the exact SQL (or source URL), the row count, the size, the SHA-256 c
 Format: Apache Parquet (zstd). Read with `pandas.read_parquet(path)`. Angles in degrees, parallaxes and Thiele–Innes
 constants in mas, proper motions in mas/yr, periods in days, velocities in km/s. Floating-point columns are float32
 except positions, periods and periastron times (the DR4 pre-release file keeps every column at its native precision). Missing values: NaN (floating point), −1 (integers).
+
+## Additional data in data-v0.3
+
+`hgca_edr3.parquet` contains all 115,346 rows and 35 columns of Brandt (2021)'s public HGCA EDR3 catalogue,
+with native precision, integer identifiers, calibrated proper motions/errors/correlations, individual reference
+epochs, and correction terms. Build with `python scripts/build_data.py hgca_edr3`; no database access is used.
+The author’s FITS copy is pinned to an orvara commit and checked by SHA-256 before conversion; the exact URL
+and source checksum are in `MANIFEST.json`. Cite [Brandt (2021)](https://arxiv.org/abs/2105.11662), Table 4,
+and retain the Gaia/Hipparcos acknowledgements. The author repository’s BSD 3-Clause notice is retained in `HGCA_SOURCE_LICENSE.txt`; retain the underlying Gaia data attribution and terms.
+This extract is a data-v0.3 asset. Existing releases and their manifest entries are unchanged.
+
+`eb_epoch_examples.parquet` retains every returned column and quality flag from the Gaia DR3 DataLink
+responses for sources 5895765142704352640 and 541801332594262912, the two brightest NSS `EclipsingBinary`
+entries in the existing extract. It has 123 transit rows; Chapter 7 applies its G-band quality cut explicitly.
+URLs and response hashes are recorded in the manifest. Times are barycentric JD in TCB minus 2455197.5 days;
+fluxes and errors use the original Gaia units. Native float precision and integer source/transit IDs are retained.
+Gaia data terms and acknowledgements below apply.
+
+`compact_followup.parquet` contains three published RV orbital-fit summaries from El-Badry et al. (2023),
+Table 1, and Simon et al. (2026), Table 4. The auditable transcription is `compact_followup.json`, with source
+IDs, units in field names, asymmetric marginal uncertainties, fixed-parameter flags and paper links. It is
+not a set of epoch measurements or a joint posterior. BH1 uses the historical fixed-period RV-only fit;
+Chapter 9 separately quotes the later Nagarajan et al. result. The builder records the transcription hash.
+
+`ellipsoidal_epoch_example.parquet` retains the DataLink response for source 4042390512917208960,
+the bright ellipsoidal candidate shown in Gomel et al. (2023), Table 3 and Figure 9
+(https://arxiv.org/abs/2206.06032). Chapter 7 reproduces its 38 accepted G transits and second-harmonic
+amplitude. Its candidate status is retained; the tutorial does not infer a compact companion from its amplitude.
+Gaia data terms and acknowledgements apply, with the additional paper citation.
+
+Maintainers can rebuild these additions with
+`python scripts/build_data.py eb_epoch_examples ellipsoidal_epoch_example compact_followup`.
+All three extracts are included in data-v0.3. The literature parameter transcription is a small attributed
+compilation of published numerical facts; the tutorial adds no restrictions to those facts. Retain the paper
+references and table identifiers. Do not replace an existing release asset.
 
 ## Files
 
@@ -48,7 +83,7 @@ be used (ESA, Gaia DR3 known issues, 9 October 2024, https://www.cosmos.esa.int/
 
 ## Licences and terms
 
-The files are distributed under **CC BY-NC 4.0**, because Gaia data are distributed under CC BY-NC 3.0 IGO
+The Gaia-derived extracts are distributed under **CC BY-NC 4.0**, because Gaia data are distributed under CC BY-NC 3.0 IGO
 (https://www.cosmos.esa.int/web/gaia-users/license). Per product:
 
 | Product | Terms | Please cite |

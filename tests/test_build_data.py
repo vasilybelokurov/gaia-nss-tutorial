@@ -96,3 +96,44 @@ def test_interrupted_parquet_write_preserves_previous_files(builder, monkeypatch
         builder.save("sample", df, ["SELECT 1"])
     assert (path.read_bytes(), builder.MANIFEST.read_bytes()) == before
     assert not list(builder.OUT.glob("*.tmp"))
+
+
+def test_hgca_rejects_changed_source_before_writing(builder, monkeypatch):
+    import io
+    import urllib.request
+    monkeypatch.setattr(urllib.request, 'urlopen', lambda *a, **k: io.BytesIO(b'changed catalogue'))
+    with pytest.raises(ValueError, match='HGCA source checksum mismatch'):
+        builder.build('hgca_edr3')
+    assert not builder.MANIFEST.exists()
+    assert not builder.OUT.exists()
+
+
+def test_epoch_extract_keeps_large_ids_precision_and_rejection_flags(builder, monkeypatch):
+    import io
+    import urllib.request
+    ids = [5895765142704352640, 541801332594262912]
+    responses = iter([
+        pd.DataFrame({'source_id': [sid], 'transit_id': [sid + 1],
+                      'g_transit_time': [1830.4415761242763],
+                      'variability_flag_g_reject': [True]}).to_csv(index=False).encode()
+        for sid in ids
+    ])
+    monkeypatch.setattr(urllib.request, 'urlopen', lambda *a, **k: io.BytesIO(next(responses)))
+    builder.build('eb_epoch_examples')
+    df = pd.read_parquet(builder.OUT / 'eb_epoch_examples.parquet')
+    assert df.source_id.tolist() == ids
+    assert df.transit_id.tolist() == [sid + 1 for sid in ids]
+    assert df.variability_flag_g_reject.all()  # cleaning belongs in the student analysis, not the extraction
+    assert abs(df.g_transit_time.iloc[0] - 1830.4415761242763) < 1e-10
+    entry = json.loads(builder.MANIFEST.read_text())['eb_epoch_examples']
+    assert entry['rows'] == 2 and len(entry['queries']) == 2
+
+
+def test_epoch_extract_rejects_wrong_source(builder, monkeypatch):
+    import io
+    import urllib.request
+    wrong = b'source_id,transit_id\n123,456\n'
+    monkeypatch.setattr(urllib.request, 'urlopen', lambda *a, **k: io.BytesIO(wrong))
+    with pytest.raises(AssertionError):
+        builder.build('eb_epoch_examples')
+    assert not builder.MANIFEST.exists()

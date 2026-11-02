@@ -7,3 +7,7 @@ chapters:
   - file: notebooks/03_astrometric_orbits
   - file: notebooks/04_spectroscopic_binaries
   - file: notebooks/05_dr4_epoch_astrometry
+  - file: notebooks/06_accelerations
+  - file: notebooks/07_photometric_binaries
+  - file: notebooks/08_combining_channels
+  - file: notebooks/09_compact_companions
